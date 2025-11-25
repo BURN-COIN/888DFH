@@ -5,7 +5,7 @@ import { calculateResultCategory, getRandomNumbers } from './services/gameLogic'
 import { SlotMachine } from './components/SlotMachine';
 import { BettingPanel } from './components/BettingPanel';
 import { History } from './components/History';
-import { CircleDollarSign, RotateCw, Volume2, VolumeX } from 'lucide-react';
+import { CircleDollarSign, RotateCw, Volume2, VolumeX, X, Trophy } from 'lucide-react';
 
 const CHIP_VALUES = [1, 10, 100, 1000];
 
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [selectedChip, setSelectedChip] = useState<number>(10);
   const [resultMessage, setResultMessage] = useState<string>('');
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showResultModal, setShowResultModal] = useState(false);
   
   // Custom number state
   const [targetNumber, setTargetNumber] = useState<string>('888');
@@ -60,6 +61,7 @@ const App: React.FC = () => {
     setIsSpinning(true);
     setLastWin(null);
     setResultMessage('');
+    setShowResultModal(false);
 
     // Spin duration 2 seconds
     setTimeout(() => {
@@ -92,7 +94,7 @@ const App: React.FC = () => {
         if (betAmount > 0) {
           const win = betAmount * ODDS[category];
           totalWinnings += win;
-          winDetails.push(`${name}(+${win})`);
+          winDetails.push(`${name}`);
         }
       }
     };
@@ -113,7 +115,7 @@ const App: React.FC = () => {
     if (customBetAmount > 0 && resultStr === targetNumber) {
         const win = customBetAmount * ODDS[BetCategory.CUSTOM];
         totalWinnings += win;
-        winDetails.push(`自选命中 (+${win})`);
+        winDetails.push(`自选命中`);
         isCustomWin = true;
     }
 
@@ -124,7 +126,8 @@ const App: React.FC = () => {
       if (betAmount > 0) {
         const win = betAmount * ODDS[mainPatternCategory];
         totalWinnings += win;
-        winDetails.push(`${ODDS[mainPatternCategory]}倍 (+${win})`);
+        // Use label without odds
+        winDetails.push(mainPatternCategory === BetCategory.LEOPARD ? '豹子' : mainPatternCategory === BetCategory.STRAIGHT ? '顺子' : '对子');
       }
     }
 
@@ -132,12 +135,12 @@ const App: React.FC = () => {
     if (totalWinnings > 0) {
       setBalance(prev => prev + totalWinnings);
       setLastWin(totalWinnings);
-      setResultMessage(`恭喜！${winDetails.join('，')}！总赢得 ${totalWinnings}`);
+      setResultMessage(`命中: ${winDetails.join('，')}`);
     } else {
       let displayResult = mainPatternCategory !== 'NONE' ? mainPatternCategory : '';
       if (isBig) displayResult += ' 大'; else displayResult += ' 小';
       if (isOdd) displayResult += ' 单'; else displayResult += ' 双';
-      setResultMessage(`开出：${resultStr} (${displayResult})`);
+      setResultMessage(`${displayResult}`);
     }
 
     // Add to history
@@ -154,6 +157,11 @@ const App: React.FC = () => {
 
     // Clear bets for next round
     setBets({});
+    
+    // Show Modal
+    setTimeout(() => {
+        setShowResultModal(true);
+    }, 500); // Slight delay for effect
   };
 
   return (
@@ -181,22 +189,16 @@ const App: React.FC = () => {
         </div>
       </header>
 
+      {/* History (Moved to top) */}
+      <History history={history} />
+
       {/* Game Area */}
       <main className="w-full max-w-2xl px-4 flex flex-col items-center">
         
         <SlotMachine finalNumbers={finalNumbers} isSpinning={isSpinning} />
 
-        {/* Result Display */}
-        <div className="min-h-[3rem] flex items-center justify-center mb-2 px-4 text-center">
-           {resultMessage && (
-             <div className={`px-4 py-2 rounded-xl text-sm md:text-base font-bold animate-bounce ${lastWin ? 'bg-yellow-500 text-red-900 shadow-[0_0_20px_rgba(234,179,8,0.6)]' : 'bg-gray-800 text-gray-300 border border-gray-700'}`}>
-               {resultMessage}
-             </div>
-           )}
-        </div>
-
         {/* Chip Selection */}
-        <div className="flex gap-4 mb-6 overflow-x-auto p-2 max-w-full justify-center">
+        <div className="flex gap-4 mb-6 mt-4 overflow-x-auto p-2 max-w-full justify-center">
           {CHIP_VALUES.map(val => (
             <button
               key={val}
@@ -211,9 +213,9 @@ const App: React.FC = () => {
               <div className="font-bold text-sm md:text-lg">{val}</div>
             </button>
           ))}
-
-          {/* Show Hand / All In Button */}
-          <button
+          
+           {/* Show Hand / All In Button */}
+           <button
               onClick={() => setSelectedChip(balance)}
               disabled={balance === 0}
               className={`
@@ -264,9 +266,108 @@ const App: React.FC = () => {
             ) : '开始摇奖'}
           </button>
         </div>
-
-        <History history={history} />
       </main>
+
+      {/* Professional Result Modal */}
+      {showResultModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setShowResultModal(false)}>
+            <div 
+                className={`
+                    relative w-full max-w-sm rounded-2xl p-8 shadow-2xl transform animate-in zoom-in-95 duration-300 flex flex-col items-center text-center
+                    ${lastWin && lastWin > 0 
+                        ? 'bg-gradient-to-b from-[#450a0a] to-black border-2 border-yellow-500 shadow-[0_0_60px_rgba(234,179,8,0.4)]' 
+                        : 'bg-[#1a1a1a] border border-gray-600 shadow-2xl'}
+                `} 
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Close Button */}
+                <button 
+                    onClick={() => setShowResultModal(false)}
+                    className="absolute top-3 right-3 text-white/50 hover:text-white p-2 transition-colors"
+                >
+                    <X size={24} />
+                </button>
+
+                {lastWin && lastWin > 0 ? (
+                    <>
+                        {/* Winner Header */}
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-yellow-500 blur-xl opacity-50 animate-pulse"></div>
+                                <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center border-4 border-[#450a0a] shadow-xl relative z-10">
+                                    <Trophy className="w-12 h-12 text-[#450a0a]" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-10 space-y-2">
+                             <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 uppercase tracking-widest drop-shadow-sm">
+                                恭喜中奖
+                            </h2>
+                            <p className="text-yellow-100/70 text-sm font-medium">运气爆棚！财源滚滚！</p>
+                        </div>
+                       
+                        <div className="my-8 relative">
+                             <div className="text-6xl font-black text-yellow-400 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] tracking-tighter">
+                                <span className="text-4xl align-top mr-1">+</span>
+                                {lastWin.toLocaleString()}
+                            </div>
+                            <div className="text-xs text-yellow-600 font-bold uppercase tracking-[0.3em] mt-1 border-t border-yellow-900/50 pt-2">
+                                Win Amount
+                            </div>
+                        </div>
+
+                        <div className="bg-black/40 rounded-lg p-3 w-full border border-yellow-900/30 mb-6">
+                            <div className="text-xs text-gray-400 mb-1">中奖详情</div>
+                            <div className="text-yellow-200 font-medium text-sm leading-relaxed">
+                                {resultMessage}
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={() => setShowResultModal(false)}
+                            className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-yellow-500 text-[#450a0a] font-black text-xl shadow-lg hover:from-yellow-500 hover:to-yellow-400 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                        >
+                            <CircleDollarSign className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                            收下金币
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        {/* Loss Header */}
+                         <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center border-4 border-[#1a1a1a] shadow-xl">
+                                <span className="text-4xl">🎲</span>
+                            </div>
+                        </div>
+
+                        <h2 className="mt-8 text-2xl font-bold text-gray-300 uppercase tracking-widest">
+                            本局结果
+                        </h2>
+                        
+                        <div className="flex justify-center gap-3 my-8">
+                            {finalNumbers.map((num, i) => (
+                                <div key={i} className="w-16 h-20 bg-black/50 rounded-lg border border-gray-700 flex items-center justify-center text-4xl font-black text-gray-400 shadow-inner">
+                                    {num}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="text-gray-500 text-sm mb-8 bg-black/20 py-2 px-4 rounded-full">
+                            {resultMessage}
+                        </div>
+
+                        <button 
+                            onClick={() => setShowResultModal(false)}
+                            className="w-full py-3 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-lg shadow-lg transition-all active:scale-95"
+                        >
+                            再接再厉
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+      )}
     </div>
   );
 };

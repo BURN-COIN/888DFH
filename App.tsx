@@ -63,7 +63,7 @@ const App: React.FC = () => {
     setResultMessage('');
     setShowResultModal(false);
 
-    // Spin duration 2 seconds
+    // Spin duration 2 seconds before start stopping
     setTimeout(() => {
       const numbers = getRandomNumbers();
       setFinalNumbers(numbers);
@@ -159,9 +159,10 @@ const App: React.FC = () => {
     setBets({});
     
     // Show Modal
+    // We delay the modal to allow the Sequential Slot Animation (approx 1.2s - 1.5s) to finish first
     setTimeout(() => {
         setShowResultModal(true);
-    }, 500); // Slight delay for effect
+    }, 2000); 
   };
 
   return (

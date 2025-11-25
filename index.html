@@ -35,6 +35,17 @@
         filter: blur(2px);
       }
 
+      /* Advanced Vertical Motion Blur for reels */
+      .motion-blur {
+         animation: blurVertical 0.1s infinite linear;
+      }
+
+      @keyframes blurVertical {
+         0% { filter: blur(1px); transform: translateY(-3px); }
+         50% { filter: blur(3px); transform: translateY(3px); }
+         100% { filter: blur(1px); transform: translateY(-3px); }
+      }
+
       @keyframes shiny {
         0% { background-position: -100% 0; }
         100% { background-position: 200% 0; }

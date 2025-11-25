@@ -10,7 +10,7 @@ import { CircleDollarSign, RotateCw, Volume2, VolumeX, X, Trophy } from 'lucide-
 const CHIP_VALUES = [1, 10, 100, 1000];
 
 const App: React.FC = () => {
-  const [balance, setBalance] = useState<number>(10000000);
+  const [balance, setBalance] = useState<number>(1000);
   const [bets, setBets] = useState<Record<string, number>>({});
   const [isSpinning, setIsSpinning] = useState(false);
   const [finalNumbers, setFinalNumbers] = useState<[number, number, number]>([8, 8, 8]);

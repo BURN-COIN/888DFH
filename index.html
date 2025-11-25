@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>888大富豪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+      
+      body {
+        font-family: 'Noto Serif SC', serif;
+        background-color: #2c0b0e;
+        color: #fce7ac;
+      }
+      
+      .gradient-text {
+        background: linear-gradient(to bottom, #fce7ac, #e6b980);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .gold-border {
+        border: 2px solid #e6b980;
+        box-shadow: 0 0 10px rgba(230, 185, 128, 0.3);
+      }
+      
+      /* Slot Reel Animation classes */
+      .reel-container {
+        overflow: hidden;
+        position: relative;
+      }
+      
+      .spin-blur {
+        filter: blur(2px);
+      }
+
+      @keyframes shiny {
+        0% { background-position: -100% 0; }
+        100% { background-position: 200% 0; }
+      }
+      
+      .btn-shine {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .btn-shine::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 100%);
+        transform: skewX(-25deg);
+        animation: shiny 3s infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.js"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
